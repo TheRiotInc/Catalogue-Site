@@ -1,0 +1,42 @@
+
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    command: ["sh", "/app/entrypoint.sh"]
+    volumes:
+      - ./backend:/app
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+      - redis
+      - mqtt
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+  ml-service:
+    build: ./ml-service
+    ports:
+      - "5001:5001"
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: inventory
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+  mqtt:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
